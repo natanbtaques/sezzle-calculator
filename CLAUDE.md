@@ -6,6 +6,8 @@ The two only talk over HTTP; neither imports code from the other.
 
 ## Commands
 
+Requires Go 1.24+ and Node 22.19+ (see `.nvmrc`).
+
 Backend (run inside `backend/`):
 - `go run ./cmd/server` — API on :8080 (env: `PORT`, `ALLOWED_ORIGIN`)
 - `go test ./... -cover` — tests with coverage

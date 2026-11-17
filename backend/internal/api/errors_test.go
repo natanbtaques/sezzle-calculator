@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/natantaques/sezzle-calculator/backend/internal/calculator"
+	"github.com/natanbtaques/sezzle-calculator/backend/internal/calculator"
 )
 
 func TestMapError(t *testing.T) {

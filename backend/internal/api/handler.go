@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/natantaques/sezzle-calculator/backend/internal/calculator"
+	"github.com/natanbtaques/sezzle-calculator/backend/internal/calculator"
 )
 
 const maxBodyBytes = 8 << 10 // 8 KiB: enough for the largest allowed expression

@@ -1,0 +1,21 @@
+# Runs the whole app: docker compose up --build
+# Then open http://localhost:3000
+services:
+  backend:
+    build: ./backend
+    environment:
+      PORT: "8080"
+      # The frontend reaches the API through nginx (same origin), so CORS is off.
+      ALLOWED_ORIGIN: ""
+    # Not published to the host: only the frontend container talks to it.
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

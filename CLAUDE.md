@@ -9,7 +9,8 @@ The two only talk over HTTP; neither imports code from the other.
 Requires Go 1.24+ and Node 22.19+ (see `.nvmrc`).
 
 Backend (run inside `backend/`):
-- `go run ./cmd/server` — API on :8080 (env: `PORT`, `ALLOWED_ORIGIN`)
+- `go run ./cmd/server` — API on :8080 (env: `PORT`, `ALLOWED_ORIGIN`; set
+  `ALLOWED_ORIGIN=""` to disable CORS)
 - `go test ./... -cover` — tests with coverage
 - `go vet ./... && gofmt -l .` — must print nothing
 
@@ -19,7 +20,14 @@ Frontend (run inside `frontend/`):
 - `npm run typecheck` and `npm run lint` — must pass with no errors
 - `npm run build`
 
+Full stack (run at the repository root):
+- `docker compose up --build` — app on http://localhost:3000; nginx serves the
+  frontend and proxies `/api` to the backend (same origin, CORS disabled)
+
 Before finishing any change, run the tests, typecheck and lint of every part you touched.
+
+CI (`.github/workflows/ci.yml`) runs all of the above on every push, plus a Docker
+smoke test of the full stack. Keep it green.
 
 ## Architecture
 

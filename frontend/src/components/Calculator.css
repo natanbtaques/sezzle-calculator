@@ -117,11 +117,21 @@
 
 @media (max-width: 480px) and (pointer: coarse) {
   .calculator {
-    min-height: 100dvh;
+    height: 100dvh;
     justify-content: flex-end;
     max-width: none;
     border-radius: 0;
     box-shadow: none;
     padding: 1rem 1rem 1.5rem;
+  }
+
+  /* Fit the screen height: rows share the space under the display, at least 48px each. */
+  .keypad {
+    flex: 1;
+    grid-auto-rows: minmax(3rem, 1fr);
+  }
+
+  .key {
+    aspect-ratio: auto;
   }
 }

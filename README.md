@@ -37,7 +37,8 @@ every push to main and on every pull request. Coverage reports are attached to e
 
 ## API
 
-**`POST /api/v1/evaluate`**: full expression with operator precedence.
+**`POST /api/v1/evaluate`**: full expression with operator precedence. `operands` must
+contain only numbers; `null` is rejected with `INVALID_INPUT`.
 
 ```bash
 curl -X POST localhost:8080/api/v1/evaluate -H "Content-Type: application/json" \

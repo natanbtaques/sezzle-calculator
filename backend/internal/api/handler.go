@@ -35,8 +35,9 @@ type CalculateResponse struct {
 // EvaluateRequest is the body of POST /api/v1/evaluate. The expression
 // 33 × 12 + 5 is sent as operands [33, 12, 5], operators [multiply, add].
 type EvaluateRequest struct {
-	Operands  []float64 `json:"operands"`
-	Operators []string  `json:"operators"`
+	// Pointers so that a null element can be rejected instead of becoming 0.
+	Operands  []*float64 `json:"operands"`
+	Operators []string   `json:"operators"`
 }
 
 // EvaluateResponse is returned on success.
@@ -119,13 +120,21 @@ func (h handlers) handleEvaluate(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, CodeInvalidInput, `field "operands" is required`)
 		return
 	}
+	operands := make([]float64, len(req.Operands))
+	for i, v := range req.Operands {
+		if v == nil {
+			writeError(w, http.StatusBadRequest, CodeInvalidInput, `field "operands" must contain only numbers`)
+			return
+		}
+		operands[i] = *v
+	}
 
 	operators := make([]calculator.Operation, len(req.Operators))
 	for i, op := range req.Operators {
 		operators[i] = calculator.Operation(op)
 	}
 
-	result, err := calculator.Evaluate(req.Operands, operators)
+	result, err := calculator.Evaluate(operands, operators)
 	if err != nil {
 		h.writeCalcError(w, r, err)
 		return

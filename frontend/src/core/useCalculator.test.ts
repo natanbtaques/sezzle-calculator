@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useCalculator } from './useCalculator'
 
 function json(body: unknown, status = 200) {
@@ -129,6 +129,54 @@ describe('useCalculator', () => {
 
     expect(signal?.aborted).toBe(true)
     expect(result.current).toMatchObject({ display: '0', isLoading: false })
+  })
+
+  it('clear while the response body is being read shows no error', async () => {
+    const fetchFn = vi.fn((_url: RequestInfo | URL, init?: RequestInit) =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () =>
+          new Promise((_, reject) =>
+            init!.signal!.addEventListener('abort', () => reject(new Error('body aborted'))),
+          ),
+      } as unknown as Response),
+    )
+    const { result, type } = setup(fetchFn)
+    await type('9')
+    act(() => result.current.squareRoot())
+    await act(async () => {}) // let fetch resolve so the body read is pending
+    await act(async () => result.current.clear())
+
+    expect(result.current).toMatchObject({ display: '0', isLoading: false, error: null })
+  })
+
+  it('never stays loading when the request fails unexpectedly', async () => {
+    // A fetch that resolves to nothing makes the client throw outside its own error handling.
+    const { result, type } = setup(vi.fn().mockResolvedValue(undefined))
+    await type('9')
+    await act(async () => result.current.squareRoot())
+
+    expect(result.current).toMatchObject({
+      isLoading: false,
+      error: 'Something went wrong on our side. Please try again.',
+    })
+  })
+
+  describe('without a global DOMException (React Native / Hermes)', () => {
+    beforeEach(() => vi.stubGlobal('DOMException', undefined))
+    afterEach(() => vi.unstubAllGlobals())
+
+    it('shows the network error instead of staying in loading', async () => {
+      const { result, type } = setup(vi.fn().mockRejectedValue(new TypeError('Network request failed')))
+      await type('9')
+      await act(async () => result.current.squareRoot())
+
+      expect(result.current).toMatchObject({
+        isLoading: false,
+        error: 'Could not reach the server. Check your connection and try again.',
+      })
+    })
   })
 
   it('aborts the in-flight request on unmount', async () => {

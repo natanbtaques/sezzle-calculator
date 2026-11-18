@@ -41,10 +41,17 @@ export function useCalculator(options: Omit<ApiOptions, 'signal'> = {}) {
       dispatch({ type: 'requestStarted' })
       try {
         const result = await request(controller.signal)
+        // Aborted by clear or unmount (possibly while the body was read): nothing to update.
+        if (controller.signal.aborted) return
         if (result.ok) onSuccess(result.value)
         else dispatch({ type: 'failed', message: toUserMessage(result.error) })
       } catch {
-        // Aborted by clear or unmount: nothing to update.
+        if (controller.signal.aborted) return
+        // Never leave the keypad stuck in "loading" on an unexpected failure.
+        dispatch({
+          type: 'failed',
+          message: toUserMessage({ code: 'INVALID_RESPONSE', message: 'Unexpected client error' }),
+        })
       }
     },
     [],

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { calculate, evaluate } from './api'
 
 function jsonResponse(body: unknown, status = 200) {
@@ -61,10 +61,51 @@ describe('error handling (shared by both endpoints)', () => {
   })
 
   it('re-throws aborts so callers can ignore them', async () => {
-    const fetchFn = vi.fn().mockRejectedValue(new DOMException('Aborted', 'AbortError'))
-    await expect(calculate({ operation: 'add', a: 1, b: 1 }, { fetchFn })).rejects.toThrow(
-      'Aborted',
-    )
+    const controller = new AbortController()
+    const fetchFn = vi.fn(() => {
+      controller.abort()
+      return Promise.reject(new Error('Aborted'))
+    })
+    await expect(
+      calculate({ operation: 'add', a: 1, b: 1 }, { fetchFn, signal: controller.signal }),
+    ).rejects.toThrow('Aborted')
+  })
+
+  it('re-throws an abort that happens while the body is read', async () => {
+    const controller = new AbortController()
+    const response = {
+      ok: true,
+      status: 200,
+      json: () => {
+        controller.abort()
+        return Promise.reject(new Error('body aborted'))
+      },
+    } as unknown as Response
+    const fetchFn = vi.fn().mockResolvedValue(response)
+
+    await expect(
+      calculate({ operation: 'add', a: 1, b: 1 }, { fetchFn, signal: controller.signal }),
+    ).rejects.toThrow('body aborted')
+  })
+
+  describe('without a global DOMException (React Native / Hermes)', () => {
+    beforeEach(() => vi.stubGlobal('DOMException', undefined))
+    afterEach(() => vi.unstubAllGlobals())
+
+    it('maps network failures to NETWORK_ERROR instead of throwing', async () => {
+      const fetchFn = vi.fn().mockRejectedValue(new TypeError('Network request failed'))
+      const result = await calculate({ operation: 'add', a: 1, b: 1 }, { fetchFn })
+      expect(result).toMatchObject({ ok: false, error: { code: 'NETWORK_ERROR' } })
+    })
+
+    it('still re-throws aborts', async () => {
+      const controller = new AbortController()
+      controller.abort()
+      const fetchFn = vi.fn().mockRejectedValue(new Error('Aborted'))
+      await expect(
+        calculate({ operation: 'add', a: 1, b: 1 }, { fetchFn, signal: controller.signal }),
+      ).rejects.toThrow('Aborted')
+    })
   })
 
   it('handles a non-JSON body (e.g. proxy error page)', async () => {

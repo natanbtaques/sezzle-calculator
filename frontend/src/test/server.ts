@@ -54,8 +54,16 @@ function fakeEvaluate(operands: number[], operators: string[]): number | 'DIV0' 
 export const handlers = [
   http.post(EVALUATE_URL, async ({ request }) => {
     const { operands, operators } = (await request.json()) as {
-      operands: number[]
+      operands: (number | null)[]
       operators: string[]
+    }
+    if (!operands.every((n): n is number => typeof n === 'number')) {
+      return HttpResponse.json(
+        {
+          error: { code: 'INVALID_INPUT', message: 'field "operands" must contain only numbers' },
+        },
+        { status: 400 },
+      )
     }
     const result = fakeEvaluate(operands, operators)
     return result === 'DIV0' ? divisionByZero() : HttpResponse.json({ result })

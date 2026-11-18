@@ -197,6 +197,8 @@ func TestEvaluateEndpoint(t *testing.T) {
 		{"operator count mismatch", `{"operands":[1,2],"operators":[]}`, 400, nil, CodeInvalidInput},
 		{"unary operator in expression", `{"operands":[1,2],"operators":["sqrt"]}`, 400, nil, CodeInvalidInput},
 		{"unknown operator", `{"operands":[1,2],"operators":["mod"]}`, 400, nil, CodeUnknownOperation},
+		{"null operand", `{"operands":[null,5],"operators":["add"]}`, 400, nil, CodeInvalidInput},
+		{"null in the middle", `{"operands":[1,null,3],"operators":["add","add"]}`, 400, nil, CodeInvalidInput},
 		{"non-numeric operand", `{"operands":[1,"2"],"operators":["add"]}`, 400, nil, CodeInvalidJSON},
 		{"unknown field", `{"operands":[1],"operators":[],"x":1}`, 400, nil, CodeInvalidJSON},
 	}

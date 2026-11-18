@@ -54,14 +54,16 @@ async function post(
       signal,
     })
   } catch (err) {
-    if (isAbortError(err)) throw err
+    // Checked via the signal, not DOMException, which React Native (Hermes) lacks.
+    if (signal?.aborted) throw err
     return failure('NETWORK_ERROR', 'Could not reach the server. Check your connection.')
   }
 
   let body: unknown
   try {
     body = await response.json()
-  } catch {
+  } catch (err) {
+    if (signal?.aborted) throw err
     return failure('INVALID_RESPONSE', `Unexpected response from server (HTTP ${response.status})`)
   }
 
@@ -76,10 +78,6 @@ async function post(
 
 function failure(code: CalculatorError['code'], message: string): Result<never> {
   return { ok: false, error: { code, message } }
-}
-
-function isAbortError(err: unknown): boolean {
-  return err instanceof DOMException && err.name === 'AbortError'
 }
 
 // Runtime guards for data coming from the network.

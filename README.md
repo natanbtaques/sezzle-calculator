@@ -33,7 +33,8 @@ cd frontend && npm run coverage
 ```
 
 CI runs formatting, vet, lint, typecheck, all tests with coverage and a Docker smoke test on
-every push to main and on every pull request. Coverage reports are attached to each run as artifacts.
+every push to main and on every pull request. Coverage reports are attached to each run as
+artifacts.
 
 ## API
 
@@ -92,8 +93,8 @@ frontend/src/components       web UI
 - **Go standard library only**, and a single origin (Vite proxy in dev, nginx in Docker),
   so CORS is not needed.
 - **Responsive and accessible.** On phone-sized touch screens the calculator fills the
-  screen like a native app; keys are at least 48 px, and results and errors are announced to screen
-  readers with `aria-live`.
+  screen like a native app; keys are at least 48 px, and results and errors are announced
+  to screen readers with `aria-live`.
 
 **Assumptions:** numbers are `float64`; `%` follows phone calculators (`200 + 10%` → `200 + 20`);
 parentheses are out of scope.
@@ -104,8 +105,7 @@ I used Claude (chat and Claude Code) throughout, as allowed. Prompts and the cha
 after reviewing the output are in [PROMPTS.md](PROMPTS.md); project conventions for Claude
 Code are in [CLAUDE.md](CLAUDE.md).
 
-<!-- TODO: time spent -->
-Time spent: about X hours, plus time learning Go, which I had not used before.
+Time spent: about 3.5 hours, plus time learning Go, which I had not used before.
 
 ## With more time
 

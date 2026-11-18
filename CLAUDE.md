@@ -55,7 +55,10 @@ requests, plus a Docker smoke test of the full stack. Keep it green.
   - `useCalculator.ts` — connects the reducer to the API.
 - `src/components/` — web UI only (rendering, CSS, physical keyboard).
 - The frontend never does arithmetic: every result comes from the API.
-- User-facing error text is chosen by error `code` (`messages.ts`), never by parsing `message`.
+- Detect aborts with `signal.aborted`, never `instanceof DOMException` (not available
+  on Hermes / React Native).
+- User-facing error text comes from a complete `Record<ErrorCode, string>` in
+  `messages.ts`; the server's `message` is never shown to the user.
 
 ## Conventions
 

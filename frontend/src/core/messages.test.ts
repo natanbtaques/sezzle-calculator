@@ -14,9 +14,13 @@ describe('toUserMessage', () => {
     ).toBe('The result is not a real number or is too large to display.')
   })
 
-  it('falls back to the server message for codes without a custom text', () => {
-    expect(toUserMessage({ code: 'INVALID_INPUT', message: 'field "a" is required' })).toBe(
-      'field "a" is required',
-    )
+  it.each([
+    ['INVALID_JSON', 'request body contains malformed JSON'],
+    ['INVALID_INPUT', 'invalid expression: at most 100 operands are allowed'],
+    ['UNKNOWN_OPERATION', 'unknown operation: "mod"'],
+  ] as const)('shows a user-facing message for %s, never the server text', (code, message) => {
+    const text = toUserMessage({ code, message })
+    expect(text).toBe('That calculation can’t be done. Clear and try again.')
+    expect(text).not.toContain(message)
   })
 })

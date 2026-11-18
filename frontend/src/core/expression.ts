@@ -99,12 +99,16 @@ export function expressionReducer(state: ExpressionState, action: ExpressionActi
       }
       // Nothing typed: remove the last operator and reopen the previous number.
       if (state.operators.length > 0) {
-        const last = state.operands[state.operands.length - 1]
+        const entry = String(state.operands[state.operands.length - 1])
+        // A computed value such as 0.30000000000000004 or 1e+30 is not something the
+        // user typed: editing it digit by digit would change the number or yield NaN.
+        const typeable = !entry.includes('e') && countDigits(entry) <= MAX_ENTRY_DIGITS
         return {
           ...state,
           operands: state.operands.slice(0, -1),
           operators: state.operators.slice(0, -1),
-          entry: String(last),
+          entry,
+          entryIsResult: !typeable,
         }
       }
       return state

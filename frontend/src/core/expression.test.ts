@@ -114,6 +114,36 @@ describe('backspace', () => {
   it('does nothing on an empty calculator', () => {
     expect(keys('<')).toEqual(initialState)
   })
+
+  describe('over the operator after a computed result', () => {
+    const resultThen = (value: number, sequence: string) =>
+      keys(sequence, press({ type: 'evaluated', value, expression: '… =' }))
+
+    it('reopens a number the user could have typed for editing', () => {
+      const state = resultThen(12, '+<')
+      expect(view(state)).toEqual({ expression: '', display: '12' })
+      expect(keys('<', state).entry).toBe('1')
+    })
+
+    it('keeps floating point noise as a formatted result', () => {
+      const state = resultThen(0.1 + 0.2, '+<')
+      expect(view(state)).toEqual({ expression: '', display: '0.3' })
+      expect(keys('<', state)).toBe(state)
+    })
+
+    it('keeps an exponent result intact instead of editing it into NaN', () => {
+      const state = resultThen(1e30, '+<<<<')
+      expect(selectDisplayValue(state)).toBe('1e+30')
+      expect(toEvaluateRequest(keys('+1', state))).toEqual({
+        operands: [1e30, 1],
+        operators: ['add'],
+      })
+    })
+
+    it('a digit replaces the kept result', () => {
+      expect(selectDisplayValue(resultThen(0.1 + 0.2, '+<7'))).toBe('7')
+    })
+  })
 })
 
 describe('toEvaluateRequest', () => {

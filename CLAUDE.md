@@ -78,3 +78,5 @@ requests, plus a Docker smoke test of the full stack. Keep it green.
 - Do not add dependencies (Go or npm) without asking first.
 - Keep the scope small: correctness, clarity and tests over extra features.
 - Error messages must not leak internals (Go type names, stack traces).
+- Never commit, push, merge or switch branches. Leave changes uncommitted and show the diff;
+  the developer reviews and commits.

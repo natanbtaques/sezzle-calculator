@@ -10,3 +10,6 @@ frontend/coverage/
 # Editor / OS
 .vscode/
 .DS_Store
+
+#CLAUDE
+.claude

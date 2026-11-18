@@ -26,8 +26,8 @@ Full stack (run at the repository root):
 
 Before finishing any change, run the tests, typecheck and lint of every part you touched.
 
-CI (`.github/workflows/ci.yml`) runs all of the above on every push, plus a Docker
-smoke test of the full stack. Keep it green.
+CI (`.github/workflows/ci.yml`) runs all of the above on every push to main and on pull
+requests, plus a Docker smoke test of the full stack. Keep it green.
 
 ## Architecture
 

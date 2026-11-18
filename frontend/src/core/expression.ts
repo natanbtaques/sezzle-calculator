@@ -125,7 +125,13 @@ export function expressionReducer(state: ExpressionState, action: ExpressionActi
       }
 
     case 'entryReplaced':
-      return { ...state, status: 'idle', entry: String(action.value), entryIsResult: true }
+      return {
+        ...state,
+        status: 'idle',
+        entry: String(action.value),
+        entryIsResult: true,
+        history: null,
+      }
 
     case 'failed':
       return { ...state, status: 'error', error: action.message }

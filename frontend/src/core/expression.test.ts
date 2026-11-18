@@ -184,6 +184,17 @@ describe('unary results (√ and %)', () => {
   it('a new digit replaces the computed number but keeps the expression', () => {
     expect(view(keys('5', replaced))).toEqual({ expression: '10 +', display: '5' })
   })
+
+  it('clears the previous result line, which no longer matches the number', () => {
+    // "2 + 3 =" then √: showing "2 + 3 =" over 2.236… would read as if 2 + 3 gave that.
+    const afterSqrt = press(
+      { type: 'evaluated', value: 5, expression: '2 + 3 =' },
+      { type: 'requestStarted' },
+      { type: 'entryReplaced', value: Math.sqrt(5) },
+    )
+    expect(view(afterSqrt)).toEqual({ expression: '', display: '2.2360679775' })
+    expect(view(keys('+1', afterSqrt))).toEqual({ expression: '2.2360679775 +', display: '1' })
+  })
 })
 
 describe('loading and errors', () => {

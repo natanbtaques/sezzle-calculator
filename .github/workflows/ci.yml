@@ -66,6 +66,7 @@ jobs:
 
       - name: Test with coverage
         run: |
+          set -o pipefail
           npm run coverage -- --coverage.reporter=text-summary --coverage.reporter=html --coverage.reporter=json-summary | tee coverage.txt
           echo '### Frontend coverage' >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"

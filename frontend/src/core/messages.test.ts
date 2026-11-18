@@ -8,6 +8,12 @@ describe('toUserMessage', () => {
     )
   })
 
+  it('covers non-real results as well as overflow for RESULT_NOT_FINITE', () => {
+    expect(
+      toUserMessage({ code: 'RESULT_NOT_FINITE', message: 'result is not a finite number' }),
+    ).toBe('The result is not a real number or is too large to display.')
+  })
+
   it('falls back to the server message for codes without a custom text', () => {
     expect(toUserMessage({ code: 'INVALID_INPUT', message: 'field "a" is required' })).toBe(
       'field "a" is required',

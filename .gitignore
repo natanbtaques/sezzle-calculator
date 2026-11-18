@@ -12,4 +12,5 @@ frontend/coverage/
 .DS_Store
 
 #CLAUDE
-.claude
+.claude/settings.local.json
+.claude/skills/
